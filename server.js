@@ -275,9 +275,6 @@ app.put('/api/records/:id', async (req, res) => {
     connection.release();
   }
 });
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
