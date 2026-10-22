@@ -7,15 +7,14 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+// It will use environment variables in the cloud, or fallback locally if needed
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  password: process.env.DB_PASSWORD || 'your_local_password',
   database: process.env.DB_NAME || 'pwd_inventory_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  dateStrings: true // Prevents UTC date shifts
+  ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : null // Required for cloud providers like Aiven
 });
 
 pool.getConnection()
