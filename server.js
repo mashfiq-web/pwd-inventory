@@ -6,7 +6,7 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-
+const mysql = require('mysql2/promise');
 // It will use environment variables in the cloud, or fallback locally if needed
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
