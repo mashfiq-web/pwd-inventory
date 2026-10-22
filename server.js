@@ -275,5 +275,9 @@ app.put('/api/records/:id', async (req, res) => {
     connection.release();
   }
 });
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Backend server running on port ${PORT}`);
+});
 
 
