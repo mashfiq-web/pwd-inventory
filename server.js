@@ -7,29 +7,39 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 const mysql = require('mysql2/promise');
 
-// It will use environment variables in the cloud, or fallback locally if needed
-const pool = mysql.createPool(
-    process.env.DATABASE_URL 
-        ? {
-            uri: process.env.DATABASE_URL,
-            ssl: { rejectUnauthorized: false } // Required for Aiven SSL security handshake
-          } 
-        : {
-            host: 'localhost',
-            user: 'root',
-            password: 'your_local_password',
-            database: 'pwd_inventory_db'
-          }
-);
+let poolConfig;
+
+if (process.env.DATABASE_URL) {
+    // Safely parse the Aiven cloud connection string and extract properties
+    const dbUrl = new URL(process.env.DATABASE_URL);
+    poolConfig = {
+        host: dbUrl.hostname,
+        port: dbUrl.port || 3306,
+        user: dbUrl.username,
+        password: dbUrl.password,
+        database: dbUrl.pathname.replace(/^\//, ''),
+        ssl: { rejectUnauthorized: false } // Securely handles Aiven SSL without query warnings
+    };
+} else {
+    // Local fallback when running offline on your PC
+    poolConfig = {
+        host: 'localhost',
+        user: 'root',
+        password: 'your_local_password',
+        database: 'pwd_inventory_db'
+    };
+}
+
+const pool = mysql.createPool(poolConfig);
 
 pool.getConnection()
-  .then(connection => {
-    console.log('Successfully connected to the MySQL database!');
-    connection.release();
-  })
-  .catch(err => {
-    console.error('Database connection failed:', err.message);
-  });
+    .then(connection => {
+        console.log('Successfully connected to the MySQL database!');
+        connection.release();
+    })
+    .catch(err => {
+        console.error('Database connection failed:', err.message);
+    });
 
 // ==========================================
 // 1. USER AUTHENTICATION & MANAGEMENT ROUTES
