@@ -6,14 +6,21 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 const mysql = require('mysql2/promise');
+
 // It will use environment variables in the cloud, or fallback locally if needed
-// This automatically parses the full connection string from Aiven/Render
-const pool = mysql.createPool(process.env.DATABASE_URL || {
-  host: 'localhost',
-  user: 'root',
-  password: 'your_local_password',
-  database: 'pwd_inventory_db'
-});
+const pool = mysql.createPool(
+    process.env.DATABASE_URL 
+        ? {
+            uri: process.env.DATABASE_URL,
+            ssl: { rejectUnauthorized: false } // Required for Aiven SSL security handshake
+          } 
+        : {
+            host: 'localhost',
+            user: 'root',
+            password: 'your_local_password',
+            database: 'pwd_inventory_db'
+          }
+);
 
 pool.getConnection()
   .then(connection => {
