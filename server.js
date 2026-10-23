@@ -293,6 +293,15 @@ app.put('/api/records/:id', async (req, res) => {
   }
 });
 const PORT = process.env.PORT || 5000;
+const path = require('path');
+
+// 1. Serve static files (CSS, JS, images, index.html) from the root folder
+app.use(express.static(path.join(__dirname)));
+
+// 2. Explicitly send index.html when visiting the main page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
 });
